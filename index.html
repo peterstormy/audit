@@ -132,6 +132,23 @@
   .green-dot { width: 6px; height: 6px; border-radius: 999px; background: #22c55e; }
 
   ::selection { background: hsla(217, 91%, 60%, 0.35); color: white; }
+
+  /* Sample Report Card — mobile layout only */
+  @media (max-width: 640px) {
+    .rpt-header { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+    .rpt-status span:last-child { color: #9CA3AF !important; }
+    .rpt-score-block { flex-direction: column !important; align-items: flex-start !important; justify-content: flex-start !important; gap: 12px !important; }
+    .rpt-score-row { width: 100%; }
+    .rpt-score-desc { max-width: none !important; }
+    .rpt-pills { flex-direction: row !important; gap: 8px !important; min-width: 0 !important; width: 100%; }
+    .rpt-pill { flex: 1 1 0% !important; justify-content: center !important; font-size: 11px !important; padding-left: 6px !important; padding-right: 6px !important; }
+    .rpt-violation { flex-direction: column !important; padding: 12px !important; gap: 0 !important; align-items: flex-start !important; }
+    .rpt-violation-title-row { width: 100%; min-width: 0 !important; }
+    .rpt-violation-title { white-space: normal !important; overflow: visible !important; text-overflow: unset !important; }
+    .rpt-violation-meta { justify-content: space-between !important; width: 100%; font-size: 12px !important; color: #9CA3AF; margin-top: 4px; flex-shrink: 0; gap: 0 !important; }
+    .rpt-footer { flex-direction: column !important; align-items: stretch !important; gap: 16px !important; }
+    .rpt-footer-btn { width: 100% !important; text-align: center !important; white-space: nowrap; display: flex !important; justify-content: center !important; }
+  }
 </style>
 </head>
 <body class="bg-background text-foreground font-body">
@@ -402,8 +419,8 @@ function StatPill(_ref5) {
     green: { bg: "bg-[#22c55e]/10", border: "border-[#22c55e]/30", dot: "bg-[#22c55e]", text: "text-[#86efac]" },
   };
   var t = map[tone];
-  return React.createElement("div", { className: "flex items-center gap-2 ".concat(t.bg, " border ").concat(t.border, " ").concat(t.text, " rounded-full px-2.5 py-1 text-[10px]") },
-    React.createElement("span", { className: "w-1.5 h-1.5 rounded-full ".concat(t.dot) }),
+  return React.createElement("div", { className: "rpt-pill flex items-center gap-2 ".concat(t.bg, " border ").concat(t.border, " ").concat(t.text, " rounded-full px-2.5 py-1 text-[10px]") },
+    React.createElement("span", { className: "shrink-0 w-1.5 h-1.5 rounded-full ".concat(t.dot) }),
     React.createElement("span", { className: "font-medium" }, label));
 }
 
@@ -414,39 +431,39 @@ function MockAuditReport() {
     { color: "#C99A66", title: "Low color contrast ratio", count: "8 elements", wcag: "WCAG 1.4.3" },
     { color: "#C99A66", title: "Missing form field labels", count: "3 elements", wcag: "WCAG 1.3.1" },
   ];
-  return React.createElement(M.div, _extends({}, fadeUp(0.5, 30, 0.8), { className: "mt-12 w-full max-w-3xl mx-auto" }),
+  return React.createElement(M.div, _extends({}, fadeUp(0.5, 30, 0.8), { className: "mt-12 w-full max-w-3xl mx-auto px-4 sm:px-0" }),
     React.createElement("div", { className: "text-xs text-muted-foreground font-mono text-center mb-3" }, "sample audit report"),
-    React.createElement("div", { className: "glass relative overflow-hidden p-6 select-none pointer-events-none scan-sweep" },
-      React.createElement("div", { className: "flex items-center justify-between text-[11px] font-body" },
+    React.createElement("div", { className: "glass relative overflow-hidden p-4 sm:p-6 select-none pointer-events-none scan-sweep" },
+      React.createElement("div", { className: "rpt-header flex items-center justify-between text-[11px] font-body" },
         React.createElement("div", { className: "flex items-center gap-2 text-muted-foreground" },
           React.createElement(Icon, { name: "file-text", size: 13 }),
           React.createElement("span", { className: "font-mono" }, "audit-sample.pdf")),
-        React.createElement("div", { className: "flex items-center gap-2" },
+        React.createElement("div", { className: "rpt-status flex items-center gap-2" },
           React.createElement("span", { className: "green-dot pulse-dot" }),
           React.createElement("span", { className: "text-[#22c55e]" }, "Audit Complete \xB7 Anonymized client"))),
-      React.createElement("div", { className: "flex items-center justify-between mt-4 gap-6" },
-        React.createElement("div", { className: "flex items-center gap-4" },
+      React.createElement("div", { className: "rpt-score-block flex items-center justify-between mt-4 gap-6" },
+        React.createElement("div", { className: "rpt-score-row flex items-center gap-4" },
           React.createElement(ScoreRing, { score: 67 }),
-          React.createElement("div", { className: "text-[10px] text-muted-foreground leading-tight max-w-[120px]" },
+          React.createElement("div", { className: "rpt-score-desc text-[10px] text-muted-foreground leading-tight max-w-[120px]" },
             React.createElement("div", { className: "text-foreground text-[11px] font-medium mb-0.5" }, "Accessibility Score"),
             "Below WCAG 2.2 AA conformance — 22 actionable issues found.")),
-        React.createElement("div", { className: "flex flex-col gap-1.5 min-w-[150px]" },
+        React.createElement("div", { className: "rpt-pills flex flex-col gap-1.5 min-w-[150px]" },
           React.createElement(StatPill, { tone: "red", label: "14 Critical Issues" }),
           React.createElement(StatPill, { tone: "amber", label: "8 Warnings" }),
           React.createElement(StatPill, { tone: "green", label: "3 Passed" }))),
       React.createElement("div", { className: "mt-4 flex flex-col gap-2" },
         violations.map(function (v, i) {
-          return React.createElement("div", { key: i, className: "rounded-lg bg-secondary/50 border border-border/60 px-3 py-2 flex items-center justify-between text-[11px]" },
-            React.createElement("div", { className: "flex items-center gap-2 min-w-0" },
+          return React.createElement("div", { key: i, className: "rpt-violation rounded-lg bg-secondary/50 border border-border/60 px-3 py-2 flex items-center justify-between text-[11px]" },
+            React.createElement("div", { className: "rpt-violation-title-row flex items-center gap-2 min-w-0" },
               React.createElement("span", { className: "shrink-0 w-1.5 h-1.5 rounded-full", style: { background: v.color }, "aria-hidden": "true" }),
-              React.createElement("span", { className: "text-foreground truncate" }, v.title)),
-            React.createElement("div", { className: "flex items-center gap-3 shrink-0" },
+              React.createElement("span", { className: "rpt-violation-title text-foreground truncate" }, v.title)),
+            React.createElement("div", { className: "rpt-violation-meta flex items-center gap-3 shrink-0" },
               React.createElement("span", { className: "text-muted-foreground" }, v.count),
               React.createElement("span", { className: "font-mono text-muted-foreground/80 text-[10px] px-1.5 py-0.5 rounded border border-border/60" }, v.wcag)));
         })),
-      React.createElement("div", { className: "mt-4 flex justify-between items-center" },
-        React.createElement("span", { className: "text-[10px] text-muted-foreground" }, "22 critical issues shown \xB7 47 total in full report"),
-        React.createElement("a", { href: "#", className: "rounded-full border border-white/15 bg-transparent text-foreground/85 hover:text-foreground hover:bg-white/[0.04] text-[10px] px-3 py-1 transition pointer-events-auto" }, "See sample report →"))));
+      React.createElement("div", { className: "rpt-footer mt-4 flex justify-between items-center" },
+        React.createElement("span", { className: "rpt-footer-text text-[10px] text-muted-foreground" }, "22 critical issues shown \xB7 47 total in full report"),
+        React.createElement("a", { href: "#", className: "rpt-footer-btn rounded-full border border-white/15 bg-transparent text-foreground/85 hover:text-foreground hover:bg-white/[0.04] text-[10px] px-3 py-1 transition pointer-events-auto" }, "See sample report →"))));
 }
 
 function Hero() {
