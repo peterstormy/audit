@@ -478,11 +478,13 @@ function Hero() {
         "Your site is one ", React.createElement("em", { className: "font-display italic text-accent", style: { fontStyle: "italic" } }, "audit"), React.createElement("br", null), "away from compliance"),
       React.createElement(M.p, _extends({}, fadeUp(0.2, 16, 0.6), { className: "mt-8 text-center text-[17px] md:text-lg text-muted-foreground max-w-[560px] leading-relaxed font-body" }),
         "We find every WCAG 2.2 violation on your site, fix the code, and deliver an attorney-ready compliance report in 14 days."),
-      React.createElement(M.div, _extends({}, fadeUp(0.3, 16, 0.6), { className: "mt-14 w-full max-w-xl" }),
+      React.createElement(M.p, _extends({}, fadeUp(0.25, 14, 0.6), { className: "mt-6 text-center text-[14px] text-[#E8EAED] max-w-[560px] leading-relaxed font-body" }),
+        "Every audit is performed by hand by a WCAG specialist. No bots, no overlays, no shortcuts."),
+      React.createElement(M.div, _extends({}, fadeUp(0.3, 16, 0.6), { className: "mt-8 w-full max-w-xl" }),
         React.createElement(ScanForm, null),
         React.createElement("div", { className: "mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground text-center" },
           React.createElement(Icon, { name: "check", size: 12, strokeWidth: 2.25 }),
-          React.createElement("span", null, React.createElement("span", { className: "text-foreground font-medium" }, "Manual"), " audit by accessibility specialists \xB7 Delivered within 24 hours \xB7 No credit card required")),
+          React.createElement("span", null, React.createElement("span", { className: "text-foreground font-medium" }, "Manual"), " audit by a WCAG specialist \xB7 Delivered within 24 hours \xB7 No credit card required")),
         React.createElement("div", { className: "mt-5 flex items-center justify-center" },
           React.createElement("a", { href: "#pricing", className: "inline-flex items-center gap-1.5 rounded-full border border-border bg-transparent text-foreground/90 hover:text-foreground hover:bg-secondary hover:border-accent/40 transition text-sm font-medium px-4 py-2" },
             "See pricing", React.createElement(Icon, { name: "chevron-down", size: 14, strokeWidth: 2 })))),
@@ -515,7 +517,7 @@ function SectionLabel(_ref6) {
 function HowItWorks() {
   var cards = [
     { icon: "search", step: "01", title: "Submit Your URL", body: "Enter your website URL and we run a full manual audit using WCAG 2.2 AA standards plus real screen reader testing." },
-    { icon: "shield", step: "02", title: "We Audit Your Site", body: "Our audit covers all 55 WCAG 2.2 AA success criteria — contrast, keyboard navigation, screen reader labels, focus management, and more." },
+    { icon: "shield", step: "02", title: "We Audit Your Site", body: "Our audit covers every WCAG 2.2 AA success criterion — contrast, keyboard navigation, screen reader labels, focus management, and more." },
     { icon: "file-check", step: "03", title: "Get Your Report + Fixes", body: "You receive a detailed violation report with code-level fixes and an attorney-ready compliance document. All within 2 weeks." },
   ];
   return React.createElement("section", { id: "how", className: "py-32 text-center" },
@@ -573,7 +575,7 @@ function WhyUs() {
     { icon: "code", title: "Code-level remediation", body: "We fix the actual HTML, ARIA, and CSS — not a JavaScript overlay that courts reject and plaintiff attorneys specifically target." },
     { icon: "scale", title: "Attorney-ready documentation", body: "Every audit includes a compliance report formatted for legal review. Show your attorney exactly what was fixed and when." },
     { icon: "refresh-cw", title: "Protection against repeat targeting", body: "46% of sued companies get hit again because settling doesn’t fix the code. We fix the code." },
-    { icon: "globe", title: "WCAG 2.2 AA standard", body: "The benchmark that courts and the DOJ point to for ADA web compliance. We test all 55 success criteria manually, not just what automated tools catch." },
+    { icon: "globe", title: "WCAG 2.2 AA standard", body: "The benchmark that courts and the DOJ point to for ADA web compliance. We test every success criterion manually, not just what automated tools catch." },
   ];
   return React.createElement("section", { className: "py-32" },
     React.createElement("div", { className: "mx-auto max-w-6xl px-5 md:px-8" },
@@ -596,7 +598,7 @@ function WhyUs() {
               React.createElement(Icon, { name: "alert-triangle", size: 12, strokeWidth: 1.75, className: "text-[#C99A66]" }), "Industry alert"),
             React.createElement("div", { className: "text-xl font-sans-display text-foreground mt-3" }, "The overlay trap"),
             React.createElement("p", { className: "text-[15px] text-muted-foreground font-body leading-relaxed mt-3" },
-              "In 2025, 983 lawsuits targeted websites that already had an accessibility widget installed. In 2023, the FTC settled with overlay vendor accessiBe over deceptive marketing claims about its automated tool. Overlays are a documented litigation magnet — not a defense — because they don’t fix the underlying code."),
+              "In 2025, 983 lawsuits targeted websites that already had an accessibility widget installed. That same year, accessiBe agreed to pay $1M to settle FTC allegations of deceptive marketing about its accessibility overlay. Overlays are a documented litigation magnet — not a defense — because they don’t fix the underlying code."),
             React.createElement("div", { className: "mt-6 pt-6 border-t border-white/[0.08]" },
               React.createElement("div", { className: "font-sans-display text-3xl text-foreground leading-none", style: { fontWeight: 600 } }, "983 lawsuits"),
               React.createElement("div", { className: "text-[12px] mt-1.5", style: { color: "#9CA3AF" } }, "filed against sites with overlays installed in 2025")))))));
