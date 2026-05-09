@@ -70,6 +70,7 @@
   .font-body { font-family: "Inter", system-ui, sans-serif; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+    html { scroll-behavior: auto; }
   }
 
   @keyframes stormPulseA {
@@ -119,7 +120,7 @@
     pointer-events: none;
   }
 
-  .surface { background: hsl(var(--muted)); }
+  .surface { background: #15171C; }
   .hairline { background: rgba(255,255,255,0.08); }
   .eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #9CA3AF; font-family: Inter, system-ui, sans-serif; }
 
@@ -414,7 +415,7 @@ function MockAuditReport() {
     { color: "#C99A66", title: "Missing form field labels", count: "3 elements", wcag: "WCAG 1.3.1" },
   ];
   return React.createElement(M.div, _extends({}, fadeUp(0.5, 30, 0.8), { className: "mt-12 w-full max-w-3xl mx-auto" }),
-    React.createElement("div", { className: "text-xs tracking-[0.22em] text-muted-foreground font-body uppercase text-center mb-3" }, "Sample audit report"),
+    React.createElement("div", { className: "text-xs text-muted-foreground font-mono text-center mb-3" }, "sample audit report"),
     React.createElement("div", { className: "glass relative overflow-hidden p-6 select-none pointer-events-none scan-sweep" },
       React.createElement("div", { className: "flex items-center justify-between text-[11px] font-body" },
         React.createElement("div", { className: "flex items-center gap-2 text-muted-foreground" },
@@ -453,13 +454,13 @@ function Hero() {
     React.createElement(StormBackground, null),
     React.createElement("div", { className: "relative z-10 mx-auto max-w-6xl px-5 md:px-8 w-full flex flex-col items-center" },
       React.createElement(M.div, _extends({}, fadeUp(0, 10, 0.5), { className: "flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-[#9CA3AF] font-body" }),
-        React.createElement("span", { className: "h-px w-12 hairline", "aria-hidden": "true" }),
+        React.createElement("span", { className: "hairline", style: { width: "140px", height: "1px" }, "aria-hidden": "true" }),
         React.createElement("span", null, "3,948 ADA lawsuits filed in 2025"),
-        React.createElement("span", { className: "h-px w-12 hairline", "aria-hidden": "true" })),
-      React.createElement(M.h1, _extends({}, fadeUp(0.1, 16, 0.6), { className: "font-display text-foreground text-center max-w-[20ch] mt-11", style: { fontSize: "clamp(3rem, 6.5vw + 1rem, 5.5rem)", lineHeight: 1.0, letterSpacing: "-0.02em" } }),
-        "Your site is one ", React.createElement("em", { className: "font-display italic text-accent", style: { fontStyle: "italic" } }, "audit"), " away from compliance"),
+        React.createElement("span", { className: "hairline", style: { width: "140px", height: "1px" }, "aria-hidden": "true" })),
+      React.createElement(M.h1, _extends({}, fadeUp(0.1, 16, 0.6), { className: "font-display text-foreground text-center max-w-[20ch] mt-11", style: { fontSize: "clamp(2.55rem, 5.525vw + 0.85rem, 4.675rem)", lineHeight: 1.0, letterSpacing: "-0.02em" } }),
+        "Your site is one ", React.createElement("em", { className: "font-display italic text-accent", style: { fontStyle: "italic" } }, "audit"), React.createElement("br", null), "away from compliance"),
       React.createElement(M.p, _extends({}, fadeUp(0.2, 16, 0.6), { className: "mt-8 text-center text-[17px] md:text-lg text-muted-foreground max-w-[560px] leading-relaxed font-body" }),
-        "Manual WCAG 2.2 AA audit. Code-level fixes. Attorney-ready documentation. 14-day turnaround."),
+        "We find every WCAG 2.2 violation on your site, fix the code, and deliver an attorney-ready compliance report in 14 days."),
       React.createElement(M.div, _extends({}, fadeUp(0.3, 16, 0.6), { className: "mt-14 w-full max-w-xl" }),
         React.createElement(ScanForm, null),
         React.createElement("div", { className: "mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground text-center" },
@@ -575,7 +576,7 @@ function WhyUs() {
         React.createElement("div", { className: "rounded-2xl surface p-9 relative overflow-hidden" },
           React.createElement("div", { className: "relative" },
             React.createElement("div", { className: "flex items-center gap-2 text-[10px] font-mono tracking-[0.2em] uppercase", style: { color: "#9CA3AF" } },
-              React.createElement(Icon, { name: "alert-triangle", size: 12, strokeWidth: 1.75 }), "Industry alert"),
+              React.createElement(Icon, { name: "alert-triangle", size: 12, strokeWidth: 1.75, className: "text-[#C99A66]" }), "Industry alert"),
             React.createElement("div", { className: "text-xl font-sans-display text-foreground mt-3" }, "The overlay trap"),
             React.createElement("p", { className: "text-[15px] text-muted-foreground font-body leading-relaxed mt-3" },
               "In 2025, 983 lawsuits targeted websites that already had an accessibility widget installed. In 2023, the FTC settled with overlay vendor accessiBe over deceptive marketing claims about its automated tool. Overlays are a documented litigation magnet — not a defense — because they don’t fix the underlying code."),
@@ -588,12 +589,11 @@ function FinalCTA() {
   return React.createElement("section", { className: "py-36 border-t border-white/[0.06] text-center relative overflow-hidden" },
     React.createElement("div", { className: "relative mx-auto max-w-3xl px-5 md:px-8" },
       React.createElement("h2", { className: "font-sans-display text-foreground max-w-2xl mx-auto", style: { fontSize: "clamp(2.75rem, 5.5vw, 4rem)", lineHeight: 1.05 } },
-        "Compliant in ", React.createElement("em", { className: "italic text-accent" }, "14 days"), "."),
+        "Compliant in ", React.createElement("em", { className: "italic" }, "14 days"), "."),
       React.createElement("p", { className: "mt-5 text-[17px] text-muted-foreground font-body max-w-xl mx-auto leading-relaxed" },
         "Manual WCAG 2.2 AA audit. Code-level fixes. Attorney-ready documentation. Flat fee, no surprises."),
-      React.createElement("div", { className: "mt-10 flex flex-col sm:flex-row items-center justify-center gap-3" },
-        React.createElement("a", { href: "#sg-url", onClick: focusUrlInput, className: "inline-flex items-center justify-center rounded-full px-7 py-3.5 bg-accent text-accent-foreground font-body text-sm font-medium hover:opacity-90 transition" }, "Request Free Audit"),
-        React.createElement("a", { href: "https://calendly.com/stormyguard", target: "_blank", rel: "noopener noreferrer", className: "inline-flex items-center justify-center rounded-full px-7 py-3.5 border border-white/15 bg-transparent text-foreground text-sm font-medium hover:bg-white/[0.04] transition" }, "Book a 15-min call →")),
+      React.createElement("div", { className: "mt-10 flex items-center justify-center" },
+        React.createElement("a", { href: "#sg-url", onClick: focusUrlInput, className: "inline-flex items-center justify-center rounded-full px-7 py-3.5 bg-accent text-accent-foreground font-body text-sm font-medium hover:opacity-90 transition" }, "Request Free Audit")),
       React.createElement("div", { className: "mt-5 text-xs text-muted-foreground" },
         React.createElement("span", { className: "text-foreground font-medium" }, "Manual"), " audit \xB7 Delivered within 24 hours \xB7 No credit card required")));
 }
