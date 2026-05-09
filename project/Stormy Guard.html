@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Stormy Guard — ADA/WCAG Audits & Remediation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Geist:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          background: "hsl(var(--background))",
+          foreground: "hsl(var(--foreground))",
+          primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+          secondary: { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
+          muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+          accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
+          border: "hsl(var(--border))",
+        },
+        fontFamily: {
+          display: ["Fraunces", "'Instrument Serif'", "serif"],
+          body: ["Inter", "system-ui", "sans-serif"],
+        },
+        borderRadius: {
+          lg: "var(--radius)",
+          md: "calc(var(--radius) - 2px)",
+          sm: "calc(var(--radius) - 4px)",
+        },
+      },
+    },
+  };
+</script>
+<style>
+  :root {
+    --background: 222 18% 4%;
+    --foreground: 210 20% 96%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 16% 7%;
+    --secondary-foreground: 210 20% 88%;
+    --muted: 222 14% 9%;
+    --muted-foreground: 220 9% 70%;
+    --muted-foreground-soft: 220 9% 55%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    --border: 220 10% 16%;
+    --radius: 0.5rem;
+    --shadow-card: 0 30px 90px -20px rgba(0,0,0,0.6);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .font-display { font-family: "Fraunces", "Instrument Serif", serif; font-weight: 500; font-optical-sizing: auto; font-variation-settings: "opsz" 144; letter-spacing: 0.005em; }
+  .font-sans-display { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; }
+  .font-body { font-family: "Inter", system-ui, sans-serif; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  /* Storm bg */
+  @keyframes stormPulseA {
+    0%,100% { opacity: 0.55; transform: translate3d(-5%, -10%, 0) scale(1); }
+    50%     { opacity: 0.85; transform: translate3d(3%, 4%, 0) scale(1.08); }
+  }
+  @keyframes stormPulseB {
+    0%,100% { opacity: 0.35; transform: translate3d(8%, 6%, 0) scale(1.05); }
+    50%     { opacity: 0.6;  transform: translate3d(-4%, -3%, 0) scale(0.96); }
+  }
+  @keyframes stormPulseC {
+    0%,100% { opacity: 0.18; }
+    50%     { opacity: 0.42; }
+  }
+  @keyframes lightningFlash {
+    0%, 92%, 100% { opacity: 0; }
+    93%, 95% { opacity: 0.06; }
+    94%      { opacity: 0.22; }
+  }
+  @keyframes scanSweep {
+    0%   { transform: translateY(-100%); }
+    100% { transform: translateY(220%); }
+  }
+  @keyframes pulseDot {
+    0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
+    70%     { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+  }
+  @keyframes ringRotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .pulse-dot { animation: pulseDot 1.8s infinite; }
+
+  .storm-layer {
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  }
+  .storm-a {
+    background:
+      radial-gradient(ellipse 65% 55% at 20% 30%, hsla(217, 91%, 60%, 0.06), transparent 65%),
+      radial-gradient(ellipse 60% 50% at 80% 70%, hsla(217, 91%, 60%, 0.04), transparent 65%);
+    animation: stormPulseA 14s ease-in-out infinite;
+    filter: blur(20px);
+  }
+  .storm-b { display: none; }
+  .storm-c { display: none; }
+  .storm-flash { display: none; }
+  .storm-grid {
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 80%);
+  }
+
+  .glass {
+    background: hsl(var(--muted));
+    box-shadow: var(--shadow-card);
+    border-radius: 1rem;
+  }
+
+  /* scan sweep inside report */
+  .scan-sweep::after {
+    content: "";
+    position: absolute; left: 0; right: 0; top: 0; height: 30%;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.04), transparent);
+    animation: scanSweep 5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .surface { background: hsl(var(--muted)); }
+  .hairline { background: rgba(255,255,255,0.08); }
+  .eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #9CA3AF; font-family: Inter, system-ui, sans-serif; }
+
+  .ring-rotate { animation: ringRotate 16s linear infinite; transform-origin: center; }
+
+  /* subtle noise */
+  .noise::before {
+    content:""; position:absolute; inset:0; pointer-events:none; opacity:.035;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* badge dot */
+  .green-dot { width: 6px; height: 6px; border-radius: 999px; background: #22c55e; }
+
+  /* selection */
+  ::selection { background: hsla(217, 91%, 60%, 0.35); color: white; }
+</style>
+</head>
+<body class="bg-background text-foreground font-body">
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/framer-motion@11.0.8/dist/framer-motion.js"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" data-presets="env,react">
+
+const { motion } = window.framerMotion || window.Motion || {};
+const M = motion || { div: 'div', h1: 'h1', p: 'p', span: 'span', section: 'section' };
+
+// Lucide icon helper -> renders SVG via lucide UMD
+function Icon({ name, className = "", strokeWidth = 1.75, size = 16 }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    if (!ref.current) return;
+    const lib = window.lucide;
+    if (!lib || !lib.icons) return;
+    const key = name.replace(/(^|-)(.)/g, (_, __, c) => c.toUpperCase());
+    const node = lib.icons[key] || lib.icons[name];
+    if (!node) return;
+    // node is array [tag, attrs, children]
+    const svg = lib.createElement(node);
+    svg.setAttribute("width", size);
+    svg.setAttribute("height", size);
+    svg.setAttribute("stroke-width", strokeWidth);
+    if (className) svg.setAttribute("class", className);
+    ref.current.innerHTML = "";
+    ref.current.appendChild(svg);
+  }, [name, className, strokeWidth, size]);
+  return <span ref={ref} className="inline-flex" aria-hidden="true" />;
+}
+
+const fadeUp = (delay = 0, y = 16, duration = 0.6) => ({
+  initial: { opacity: 0, y },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration, delay, ease: [0.22, 1, 0.36, 1] },
+});
+
+/* ---------------- NAV ---------------- */
+function Navbar() {
+  return (
+    <header className="fixed top-0 inset-x-0 z-50">
+      <div className="mx-auto max-w-6xl px-5 md:px-8 mt-3">
+        <div className="flex items-center justify-between rounded-full border border-border bg-background/60 backdrop-blur-md px-4 md:px-5 py-2.5">
+          <a href="#top" className="flex items-center text-foreground shrink-0">
+            <span className="font-display text-[22px] tracking-tight whitespace-nowrap">Stormy Guard</span>
+          </a>
+          <nav className="hidden md:flex items-center gap-7 text-sm text-muted-foreground">
+            <a href="#how" className="hover:text-foreground transition-colors">How it Works</a>
+            <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
+            <a href="mailto:contact@stormyguard.com" className="hover:text-foreground transition-colors">Contact</a>
+          </nav>
+          <a
+            href="#sg-url"
+            className="rounded-full border border-white/15 bg-transparent text-foreground/90 hover:text-foreground hover:bg-white/[0.04] text-sm font-body font-medium px-4 py-2 transition"
+          >
+            Request Free Audit
+          </a>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ---------------- HERO ---------------- */
+function StormBackground() {
+  return (
+    <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
+      <div className="storm-layer storm-grid" />
+      <div className="storm-layer storm-a" />
+      <div className="storm-layer storm-b" />
+      <div className="storm-layer storm-c" />
+      <div className="storm-layer storm-flash" />
+      {/* vignette */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,hsl(var(--background))_85%)]" />
+    </div>
+  );
+}
+
+function ScoreRing({ score = 67, size = 96, stroke = 8 }) {
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const offset = c * (1 - score / 100);
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size/2} cy={size/2} r={r} stroke="hsl(var(--border))" strokeWidth={stroke} fill="none" />
+        <circle
+          cx={size/2} cy={size/2} r={r}
+          stroke="#D26A56" strokeWidth={stroke} fill="none"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="font-display text-foreground" style={{ fontSize: 28, lineHeight: 1 }}>{score}</div>
+        <div className="text-[8px] text-muted-foreground tracking-wider mt-0.5">/ 100</div>
+      </div>
+    </div>
+  );
+}
+
+// Stub for /api/audit-request—logs the payload and resolves like the future endpoint.
+async function postAuditRequest(payload) {
+  // eslint-disable-next-line no-console
+  console.log("[POST /api/audit-request]", payload);
+  window.dispatchEvent(new CustomEvent("sg:audit-request", { detail: payload }));
+  await new Promise((r) => setTimeout(r, 700));
+  return { ok: true, queuePosition: null };
+}
+
+function parseHost(raw) {
+  const trimmed = (raw || "").trim();
+  if (!trimmed) return null;
+  try {
+    const u = new URL(trimmed.startsWith("http") ? trimmed : `https://${trimmed}`);
+    const h = u.hostname.replace(/^www\./, "");
+    if (!h.includes(".") || h.length < 4) return null;
+    return h + (u.pathname && u.pathname !== "/" ? u.pathname.replace(/\/$/, "") : "");
+  } catch (_) {
+    return null;
+  }
+}
+
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = React.useState(false);
+  React.useEffect(() => {
+    if (!window.matchMedia) return;
+    const m = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const upd = () => setReduced(m.matches);
+    upd();
+    m.addEventListener ? m.addEventListener("change", upd) : m.addListener(upd);
+    return () => { m.removeEventListener ? m.removeEventListener("change", upd) : m.removeListener(upd); };
+  }, []);
+  return reduced;
+}
+
+function ScanForm() {
+  const reduced = usePrefersReducedMotion();
+  const [step, setStep] = React.useState("url"); // url | details | confirm
+  const [url, setUrl] = React.useState("");
+  const [domain, setDomain] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [notes, setNotes] = React.useState("");
+  const [urlError, setUrlError] = React.useState("");
+  const [emailError, setEmailError] = React.useState("");
+  const [submitting, setSubmitting] = React.useState(false);
+  const [announce, setAnnounce] = React.useState("");
+
+  const urlRef = React.useRef(null);
+  const emailRef = React.useRef(null);
+  const calendlyRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (step === "details" && emailRef.current) emailRef.current.focus();
+    if (step === "confirm" && calendlyRef.current) calendlyRef.current.focus();
+  }, [step]);
+
+  const submitUrl = (e) => {
+    e.preventDefault();
+    const parsed = parseHost(url);
+    if (!parsed) {
+      setUrlError("Please enter a valid URL (e.g., yoursite.com)");
+      return;
+    }
+    setUrlError("");
+    setDomain(parsed);
+    setStep("details");
+    setAnnounce(`URL confirmed: ${parsed}. Please enter your email.`);
+  };
+
+  const editUrl = () => {
+    setStep("url");
+    setAnnounce("Editing URL.");
+    setTimeout(() => urlRef.current && urlRef.current.focus(), 30);
+  };
+
+  const submitDetails = async (e) => {
+    e.preventDefault();
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    if (!valid) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+    setEmailError("");
+    setSubmitting(true);
+    try {
+      await postAuditRequest({ url, domain, email, notes });
+    } finally {
+      setSubmitting(false);
+      setStep("confirm");
+      setAnnounce(`Audit requested for ${domain}. Confirmation sent to ${email}.`);
+    }
+  };
+
+  const reset = () => {
+    setStep("url");
+    setUrl(""); setDomain(""); setEmail(""); setNotes("");
+    setUrlError(""); setEmailError("");
+    setAnnounce("Form reset. Enter a new URL.");
+    setTimeout(() => urlRef.current && urlRef.current.focus(), 30);
+  };
+
+  const onDetailsKey = (e) => {
+    if (e.key === "Escape") { e.preventDefault(); editUrl(); }
+  };
+
+  const mInit = reduced ? false : { opacity: 0, y: 8 };
+  const mAnim = { opacity: 1, y: 0 };
+  const mT = { duration: reduced ? 0 : 0.24, ease: [0.22, 1, 0.36, 1] };
+
+  // Same visual styling across all states (per spec): bg, border, glow.
+  const containerCls =
+    "relative rounded-[28px] surface focus-within:ring-1 focus-within:ring-white/10 transition";
+
+  return (
+    <div>
+      <div className="sr-only" aria-live="polite" role="status">{announce}</div>
+
+      {step === "url" && (
+        <M.form
+          key="url"
+          onSubmit={submitUrl}
+          initial={mInit} animate={mAnim} transition={mT}
+          noValidate
+          className={containerCls + " flex flex-col sm:flex-row items-stretch gap-2 p-1.5"}
+        >
+          <label htmlFor="sg-url" className="sr-only">Your website URL</label>
+          <div className="flex items-center gap-2 flex-1 px-4">
+            <Icon name="globe" size={15} strokeWidth={1.75} className="text-muted-foreground" />
+            <input
+              id="sg-url" ref={urlRef}
+              type="text" inputMode="url" autoComplete="url" autoFocus={false}
+              placeholder="https://yoursite.com"
+              value={url}
+              onChange={(e) => { setUrl(e.target.value); if (urlError) setUrlError(""); }}
+              aria-invalid={!!urlError}
+              aria-describedby={urlError ? "sg-url-error" : undefined}
+              className="flex-1 bg-transparent outline-none text-sm md:text-[15px] text-foreground placeholder:text-muted-foreground/70 py-2.5"
+            />
+          </div>
+          <button
+            type="submit"
+            className="rounded-full bg-accent text-accent-foreground font-body text-sm font-medium px-5 py-3 hover:opacity-90 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            Request Free Audit
+          </button>
+        </M.form>
+      )}
+
+      {step === "details" && (
+        <M.form
+          key="details"
+          onSubmit={submitDetails}
+          onKeyDown={onDetailsKey}
+          initial={mInit} animate={mAnim} transition={mT}
+          noValidate
+          className={containerCls + " p-4 text-left"}
+          aria-label="Audit request details"
+        >
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="inline-flex items-center gap-2 rounded-full bg-accent/10 border border-accent/25 px-3 py-1.5 text-xs text-foreground max-w-full">
+              <Icon name="check" size={12} strokeWidth={2.5} className="text-accent shrink-0" />
+              <span className="font-medium font-mono whitespace-nowrap">{domain}</span>
+            </div>
+            <button
+              type="button"
+              onClick={editUrl}
+              className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 decoration-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1"
+            >
+              Edit
+            </button>
+          </div>
+
+          <label htmlFor="sg-email" className="block text-sm text-foreground mb-1.5">Where should we send your audit?</label>
+          <input
+            id="sg-email" ref={emailRef}
+            type="email" autoComplete="email" placeholder="you@company.com"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(""); }}
+            aria-invalid={!!emailError}
+            aria-describedby={emailError ? "sg-email-error" : undefined}
+            className="w-full bg-background/40 border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/30 transition"
+          />
+          {emailError && (
+            <div id="sg-email-error" role="alert" aria-live="polite" className="mt-1.5 text-xs text-amber-400">{emailError}</div>
+          )}
+
+          <label htmlFor="sg-notes" className="block text-sm text-foreground mt-3 mb-1.5">
+            Anything we should know about your site? <span className="text-muted-foreground font-normal">(optional)</span>
+          </label>
+          <textarea
+            id="sg-notes" rows={3} maxLength={500}
+            placeholder="Tech stack, known issues, deadline pressure, etc."
+            value={notes} onChange={(e) => setNotes(e.target.value)}
+            className="w-full bg-background/40 border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/30 transition resize-none"
+          />
+          <div className="text-[10px] text-muted-foreground mt-1 text-right tabular-nums">{notes.length}/500</div>
+
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="text-xs text-muted-foreground hidden sm:block">
+              <kbd className="font-mono text-[10px] px-1.5 py-0.5 rounded border border-border bg-background/40">Esc</kbd> to edit URL
+            </div>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="rounded-full bg-accent text-accent-foreground font-body text-sm font-medium px-5 py-2.5 hover:brightness-110 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-80"
+            >
+              {submitting ? "Sending…" : "Send my audit"}
+            </button>
+          </div>
+        </M.form>
+      )}
+
+      {step === "confirm" && (
+        <M.div
+          key="confirm"
+          role="status"
+          initial={mInit} animate={mAnim} transition={mT}
+          className={containerCls + " p-6 text-left"}
+          style={{
+            borderColor: "rgba(34,197,94,0.32)",
+            boxShadow: "0 10px 40px -10px rgba(34,197,94,0.30), 0 0 0 1px rgba(34,197,94,0.18) inset",
+          }}
+        >
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 h-7 w-7 shrink-0 rounded-full bg-[#22c55e]/15 border border-[#22c55e]/40 text-[#22c55e] flex items-center justify-center" aria-hidden="true">
+              <Icon name="check" size={14} strokeWidth={2.5} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-sans-display text-2xl text-foreground leading-tight">
+                Got it. We’re auditing <span className="font-mono text-[1.05rem] align-middle text-accent">{domain}</span> now.
+              </h3>
+              <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                Your full report lands in <span className="text-foreground">{email}</span> within 24 hours. We’ll email you if we need anything from you in the meantime.
+              </p>
+              <div className="mt-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                <a
+                  ref={calendlyRef}
+                  href="{{TODO: calendly-url}}"
+                  target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center rounded-full bg-accent text-accent-foreground font-body text-sm font-medium px-5 py-2.5 hover:brightness-110 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  Skip the line — book a 15-min call →
+                </a>
+                <button
+                  type="button"
+                  onClick={reset}
+                  className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 decoration-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm self-start sm:self-auto px-1 py-0.5"
+                >
+                  Submit another site
+                </button>
+              </div>
+            </div>
+          </div>
+        </M.div>
+      )}
+
+      {step === "url" && urlError && (
+        <div
+          id="sg-url-error"
+          role="alert" aria-live="polite"
+          className="mt-2 pl-2 text-xs text-amber-400 text-left"
+        >
+          {urlError}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MockAuditReport() {
+  const violations = [
+    { sev: "crit", color: "#D26A56", title: "Missing alt text on images", count: "14 elements", wcag: "WCAG 1.1.1" },
+    { sev: "crit", color: "#D26A56", title: "Links have no discernible name", count: "6 elements", wcag: "WCAG 2.4.4" },
+    { sev: "warn", color: "#C99A66", title: "Low color contrast ratio", count: "8 elements", wcag: "WCAG 1.4.3" },
+    { sev: "warn", color: "#C99A66", title: "Missing form field labels", count: "3 elements", wcag: "WCAG 1.3.1" },
+  ];
+  return (
+    <M.div
+      {...fadeUp(0.5, 30, 0.8)}
+      className="mt-12 w-full max-w-3xl mx-auto"
+    >
+      <div className="text-xs tracking-[0.22em] text-muted-foreground font-body uppercase text-center mb-3">Sample audit report</div>
+      <div className="glass relative overflow-hidden p-6 select-none pointer-events-none scan-sweep">
+        {/* top bar */}
+        <div className="flex items-center justify-between text-[11px] font-body">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Icon name="file-text" size={13} />
+            <span className="font-mono">audit-sample.pdf</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="green-dot pulse-dot" />
+            <span className="text-[#22c55e]">Audit Complete · Anonymized client</span>
+          </div>
+        </div>
+
+        {/* score row */}
+        <div className="flex items-center justify-between mt-4 gap-6">
+          <div className="flex items-center gap-4">
+            <ScoreRing score={67} />
+            <div className="text-[10px] text-muted-foreground leading-tight max-w-[120px]">
+              <div className="text-foreground text-[11px] font-medium mb-0.5">Accessibility Score</div>
+              Below WCAG 2.2 AA conformance — 22 actionable issues found.
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5 min-w-[150px]">
+            <StatPill tone="red"  label="14 Critical Issues" />
+            <StatPill tone="amber" label="8 Warnings" />
+            <StatPill tone="green" label="3 Passed" />
+          </div>
+        </div>
+
+        {/* violations */}
+        <div className="mt-4 flex flex-col gap-2">
+          {violations.map((v, i) => (
+            <div key={i} className="rounded-lg bg-secondary/50 border border-border/60 px-3 py-2 flex items-center justify-between text-[11px]">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="shrink-0 w-1.5 h-1.5 rounded-full" style={{ background: v.color }} aria-hidden="true" />
+                <span className="text-foreground truncate">{v.title}</span>
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-muted-foreground">{v.count}</span>
+                <span className="font-mono text-muted-foreground/80 text-[10px] px-1.5 py-0.5 rounded border border-border/60">{v.wcag}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* bottom bar */}
+        <div className="mt-4 flex justify-between items-center">
+          <span className="text-[10px] text-muted-foreground">22 critical issues shown · 47 total in full report</span>
+          <a href="{{TODO: sample-pdf-url}}" target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/15 bg-transparent text-foreground/85 hover:text-foreground hover:bg-white/[0.04] text-[10px] px-3 py-1 transition pointer-events-auto">See sample report →</a>
+        </div>
+      </div>
+    </M.div>
+  );
+}
+
+function StatPill({ tone, label }) {
+  const map = {
+    red:   { bg: "bg-[#ef4444]/10", border: "border-[#ef4444]/30", dot: "bg-[#ef4444]", text: "text-[#fca5a5]" },
+    amber: { bg: "bg-[#f59e0b]/10", border: "border-[#f59e0b]/30", dot: "bg-[#f59e0b]", text: "text-[#fcd34d]" },
+    green: { bg: "bg-[#22c55e]/10", border: "border-[#22c55e]/30", dot: "bg-[#22c55e]", text: "text-[#86efac]" },
+  };
+  const t = map[tone];
+  return (
+    <div className={`flex items-center gap-2 ${t.bg} border ${t.border} ${t.text} rounded-full px-2.5 py-1 text-[10px]`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${t.dot}`} />
+      <span className="font-medium">{label}</span>
+    </div>
+  );
+}
+
+function Hero() {
+  return (
+    <section id="top" className="relative min-h-screen flex items-center pt-32 pb-36 noise overflow-hidden">
+      <StormBackground />
+      <div className="relative z-10 mx-auto max-w-6xl px-5 md:px-8 w-full flex flex-col items-center">
+        <M.div {...fadeUp(0, 10, 0.5)} className="flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-[#9CA3AF] font-body">
+          <span className="h-px w-12 hairline" aria-hidden="true" />
+          <span>3,948 ADA lawsuits filed in 2025</span>
+          <span className="h-px w-12 hairline" aria-hidden="true" />
+        </M.div>
+
+        <M.h1
+          {...fadeUp(0.1, 16, 0.6)}
+          className="font-display text-foreground text-center max-w-[20ch] mt-11"
+          style={{ fontSize: "clamp(3rem, 6.5vw + 1rem, 5.5rem)", lineHeight: 1.0, letterSpacing: "-0.02em" }}
+        >
+          Your site is one{" "}
+          <em className="font-display italic text-accent" style={{ fontStyle: "italic" }}>audit</em>{" "}
+          away from compliance
+        </M.h1>
+
+        <M.p
+          {...fadeUp(0.2, 16, 0.6)}
+          className="mt-8 text-center text-[17px] md:text-lg text-muted-foreground max-w-[560px] leading-relaxed font-body"
+        >
+          Manual WCAG 2.2 AA audit. Code-level fixes. Attorney-ready documentation. 14-day turnaround.
+        </M.p>
+
+        <M.div {...fadeUp(0.3, 16, 0.6)} className="mt-14 w-full max-w-xl">
+          <ScanForm />
+          <div className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground text-center">
+            <Icon name="check" size={12} strokeWidth={2.25} />
+            <span>
+              <span className="text-foreground font-medium">Manual</span> audit by accessibility specialists · Delivered within 24 hours · No credit card required
+            </span>
+          </div>
+          <div className="mt-5 flex items-center justify-center">
+            <a
+              href="#pricing"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-transparent text-foreground/90 hover:text-foreground hover:bg-secondary hover:border-accent/40 transition text-sm font-medium px-4 py-2"
+            >
+              See pricing
+              <Icon name="chevron-down" size={14} strokeWidth={2} />
+            </a>
+          </div>
+        </M.div>
+
+        <MockAuditReport />
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- STAT STRIP ---------------- */
+function StatStrip() {
+  const stats = [
+    { n: "3,948", l: "ADA lawsuits filed in 2025" },
+    { n: "96%", l: "of homepages have WCAG failures" },
+    { n: "$10K–$75K", l: "typical demand-letter settlement" },
+  ];
+  return (
+    <section className="bg-background py-20">
+      <div className="mx-auto max-w-5xl px-5 md:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 sm:divide-x divide-y sm:divide-y-0 divide-white/[0.08]">
+          {stats.map((s, i) => (
+            <div key={i} className="flex flex-col items-center text-center px-4 py-5 sm:py-2">
+              <div className="font-sans-display text-[28px] leading-none" style={{ color: "#F5F5F7", fontWeight: 600 }}>{s.n}</div>
+              <div className="text-[13px] mt-2.5" style={{ color: "#9CA3AF" }}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-7 text-center text-[12px] italic" style={{ color: "#6B7280" }}>
+          Sources: UsableNet 2025 Annual Digital Accessibility Lawsuit Report; WebAIM Million 2024.
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- HOW IT WORKS ---------------- */
+function SectionLabel({ children }) {
+  return <div className="text-[11px] tracking-[0.15em] font-body uppercase" style={{ color: "#9CA3AF" }}>{children}</div>;
+}
+
+function HowItWorks() {
+  const cards = [
+    {
+      icon: "search",
+      step: "01",
+      title: "Submit Your URL",
+      body: "Enter your website URL and we run a full manual audit using WCAG 2.2 AA standards plus real screen reader testing.",
+    },
+    {
+      icon: "shield",
+      step: "02",
+      title: "We Audit Your Site",
+      body: "Our audit covers all 55 WCAG 2.2 AA success criteria — contrast, keyboard navigation, screen reader labels, focus management, and more.",
+    },
+    {
+      icon: "file-check",
+      step: "03",
+      title: "Get Your Report + Fixes",
+      body: "You receive a detailed violation report with code-level fixes and an attorney-ready compliance document. All within 2 weeks.",
+    },
+  ];
+  return (
+    <section id="how" className="py-32 text-center">
+      <div className="mx-auto max-w-6xl px-5 md:px-8">
+        <SectionLabel>How it works</SectionLabel>
+        <h2 className="font-sans-display text-4xl md:text-5xl text-foreground mt-2">Three steps to protection</h2>
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+          {cards.map((c, i) => (
+            <div key={i} className="rounded-2xl surface p-9 relative overflow-hidden group">
+              <div className="relative">
+                <div className="h-9 w-9 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-foreground/80">
+                  <Icon name={c.icon} size={18} strokeWidth={1.6} />
+                </div>
+                <div className="text-[11px] mt-4 tracking-[0.15em] font-mono" style={{ color: "#6B7280" }}>{c.step}</div>
+                <div className="font-sans-display text-2xl text-foreground mt-1">{c.title}</div>
+                <div className="text-[15px] text-muted-foreground font-body mt-2 leading-relaxed">{c.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- PRICING ---------------- */
+function PricingCard({ tier }) {
+  const isPop = tier.popular;
+  return (
+    <div className={`relative rounded-2xl surface flex flex-col ${isPop ? "p-10" : "p-8"}`}>
+      {isPop && (
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full uppercase" style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontWeight: 600, letterSpacing: "0.1em", fontSize: "11px", padding: "6px 12px" }}>
+          Most Popular
+        </div>
+      )}
+      <div className="font-sans-display text-xl text-foreground">{tier.title}</div>
+      <div className="mt-3 flex items-baseline gap-1.5">
+        <div className="font-sans-display text-foreground" style={{ fontSize: isPop ? "3rem" : "2.5rem", lineHeight: 1, fontWeight: 600 }}>{tier.price}</div>
+        <div className="text-sm text-muted-foreground">{tier.cadence}</div>
+      </div>
+      <div className="hairline h-px mt-5 mb-5" />
+      <div className="flex flex-col gap-2.5 text-[15px] font-body">
+        {tier.features.map((f, i) => (
+          <div key={i} className="flex items-start gap-2.5 text-secondary-foreground">
+            <span className="mt-0.5" style={{ color: "#6B7280" }}>✓</span>
+            <span>{f}</span>
+          </div>
+        ))}
+      </div>
+      <a
+        href="mailto:contact@stormyguard.com"
+        className={`mt-7 rounded-full w-full text-center py-3 text-sm font-medium transition ${
+          isPop
+            ? "bg-accent text-accent-foreground hover:opacity-90"
+            : "border border-white/15 bg-transparent text-foreground hover:bg-white/[0.04]"
+        }`}
+      >
+        Get Started
+      </a>
+    </div>
+  );
+}
+
+function Pricing() {
+  const tiers = [
+    {
+      title: "Audit Only",
+      price: "$497",
+      cadence: "/one-time",
+      features: [
+        "Full WCAG 2.2 AA audit",
+        "Manual + automated testing",
+        "Screen reader testing",
+        "Detailed violation report",
+        "Attorney-ready document",
+        "2-week turnaround",
+      ],
+    },
+    {
+      title: "Audit + Remediation",
+      price: "$1,997",
+      cadence: "/one-time",
+      popular: true,
+      features: [
+        "Everything in Audit Only",
+        "Full code-level remediation",
+        "Shopify / Webflow / WordPress support",
+        "Re-test after fixes",
+        "Conformance attestation",
+        "Priority turnaround",
+      ],
+    },
+    {
+      title: "Monthly Monitoring",
+      price: "$197",
+      cadence: "/mo",
+      features: [
+        "Monthly automated scans",
+        "Regression detection",
+        "New violation alerts",
+        "Quarterly manual review",
+        "Ongoing compliance report",
+        "Cancel anytime",
+      ],
+    },
+  ];
+  return (
+    <section id="pricing" className="py-32">
+      <div className="mx-auto max-w-6xl px-5 md:px-8 text-center">
+        <SectionLabel>Pricing</SectionLabel>
+        <h2 className="font-sans-display text-4xl md:text-5xl text-foreground mt-2">Flat fees. No surprises.</h2>
+        <p className="mt-3 text-sm text-muted-foreground max-w-md mx-auto">
+          Pick the level of protection that fits. Every plan ships with attorney-ready documentation.
+        </p>
+        <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto text-left">
+          {tiers.map((t, i) => <PricingCard key={i} tier={t} />)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- WHY US ---------------- */
+function WhyUs() {
+  const rows = [
+    { icon: "code", title: "Code-level remediation", body: "We fix the actual HTML, ARIA, and CSS — not a JavaScript overlay that courts reject and plaintiff attorneys specifically target." },
+    { icon: "scale", title: "Attorney-ready documentation", body: "Every audit includes a compliance report formatted for legal review. Show your attorney exactly what was fixed and when." },
+    { icon: "refresh-cw", title: "Protection against repeat targeting", body: "46% of sued companies get hit again because settling doesn’t fix the code. We fix the code." },
+    { icon: "globe", title: "WCAG 2.2 AA standard", body: "The benchmark that courts and the DOJ point to for ADA web compliance. We test all 55 success criteria manually, not just what automated tools catch." },
+  ];
+  return (
+    <section className="py-32">
+      <div className="mx-auto max-w-6xl px-5 md:px-8">
+        <SectionLabel>Why us</SectionLabel>
+        <h2 className="font-sans-display text-4xl md:text-5xl text-foreground mt-2 max-w-xl" style={{ lineHeight: 1.1 }}>
+          Real fixes. Not a <em className="italic">widget</em>.
+        </h2>
+
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="flex flex-col gap-7">
+            {rows.map((r, i) => (
+              <div key={i} className="flex gap-4 items-start">
+                <div className="mt-0.5 h-8 w-8 shrink-0 rounded-md bg-white/[0.04] border border-white/10 text-foreground/80 flex items-center justify-center">
+                  <Icon name={r.icon} size={16} strokeWidth={1.6} />
+                </div>
+                <div>
+                  <div className="text-[16px] font-medium text-foreground font-body">{r.title}</div>
+                  <div className="text-[15px] text-muted-foreground font-body leading-relaxed mt-1">{r.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-2xl surface p-9 relative overflow-hidden">
+            <div className="relative">
+              <div className="flex items-center gap-2 text-[10px] font-mono tracking-[0.2em] uppercase" style={{ color: "#9CA3AF" }}>
+                <Icon name="alert-triangle" size={12} strokeWidth={1.75} />
+                Industry alert
+              </div>
+              <div className="text-xl font-sans-display text-foreground mt-3">The overlay trap</div>
+              <p className="text-[15px] text-muted-foreground font-body leading-relaxed mt-3">
+                In 2025, 983 lawsuits targeted websites that already had an accessibility widget installed. In 2023, the FTC settled with overlay vendor accessiBe over deceptive marketing claims about its automated tool. Overlays are a documented litigation magnet — not a defense — because they don’t fix the underlying code.
+              </p>
+              <div className="mt-6 pt-6 border-t border-white/[0.08]">
+                <div className="font-sans-display text-3xl text-foreground leading-none" style={{ fontWeight: 600 }}>983 lawsuits</div>
+                <div className="text-[12px] mt-1.5" style={{ color: "#9CA3AF" }}>filed against sites with overlays installed in 2025</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- FINAL CTA ---------------- */
+function FinalCTA() {
+  return (
+    <section className="py-36 border-t border-white/[0.06] text-center relative overflow-hidden">
+      <div className="relative mx-auto max-w-3xl px-5 md:px-8">
+        <h2 className="font-sans-display text-foreground max-w-2xl mx-auto" style={{ fontSize: "clamp(2.75rem, 5.5vw, 4rem)", lineHeight: 1.05 }}>
+          Compliant in <em className="italic">14 days</em>.
+        </h2>
+        <p className="mt-5 text-[17px] text-muted-foreground font-body max-w-xl mx-auto leading-relaxed">
+          Manual WCAG 2.2 AA audit. Code-level fixes. Attorney-ready documentation. Flat fee, no surprises.
+        </p>
+        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <a
+            href="#sg-url"
+            className="inline-flex items-center justify-center rounded-full px-7 py-3.5 bg-accent text-accent-foreground font-body text-sm font-medium hover:opacity-90 transition"
+          >
+            Request Free Audit
+          </a>
+          <a
+            href="{{TODO: calendly-url}}"
+            target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-full px-7 py-3.5 border border-white/15 bg-transparent text-foreground text-sm font-medium hover:bg-white/[0.04] transition"
+          >
+            Book a 15-min call →
+          </a>
+        </div>
+        <div className="mt-5 text-xs text-muted-foreground">
+          <span className="text-foreground font-medium">Manual</span> audit · Delivered within 24 hours · No credit card required
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- FOOTER ---------------- */
+function Footer() {
+  return (
+    <footer className="bg-background border-t border-white/[0.06] py-10 px-6">
+      <div className="mx-auto max-w-6xl flex justify-between items-center flex-wrap gap-4">
+        <div className="flex flex-col">
+          <div className="text-[15px] font-display text-foreground">Stormy Guard</div>
+          <div className="text-xs text-muted-foreground mt-1">© 2026</div>
+        </div>
+        <div className="text-xs text-muted-foreground font-body text-right">
+          ADA/WCAG Accessibility Audits · <a className="hover:text-foreground" href="mailto:contact@stormyguard.com">contact@stormyguard.com</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ---------------- APP ---------------- */
+function App() {
+  return (
+    <div className="min-h-screen">
+      <Navbar />
+      <Hero />
+      <StatStrip />
+      <HowItWorks />
+      <Pricing />
+      <WhyUs />
+      <FinalCTA />
+      <Footer />
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+</script>
+</body>
+</html>
