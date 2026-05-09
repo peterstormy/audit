@@ -251,17 +251,14 @@ function ScoreRing(_ref3) {
       React.createElement("div", { className: "text-[8px] text-muted-foreground tracking-wider mt-0.5" }, "/ 100")));
 }
 
-function postAuditRequest(_x) {
-  return _postAuditRequest.apply(this, arguments);
-}
-function _postAuditRequest() {
-  _postAuditRequest = _asyncToGenerator(function* (payload) {
-    console.log("[POST /api/audit-request]", payload);
-    window.dispatchEvent(new CustomEvent("sg:audit-request", { detail: payload }));
-    yield new Promise(function (r) { return setTimeout(r, 700); });
-    return { ok: true, queuePosition: null };
+async function postAuditRequest(payload) {
+  var res = await fetch("https://stormy-guard-mailer.stormyguard.workers.dev", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
   });
-  return _postAuditRequest.apply(this, arguments);
+  if (!res.ok) throw new Error("Request failed");
+  return res.json();
 }
 
 function parseHost(raw) {
