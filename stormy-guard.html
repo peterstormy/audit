@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Stormy Guard — ADA/WCAG Audits &amp; Remediation</title>
+<meta name="description" content="Manual WCAG 2.2 AA audit. Code-level fixes. Attorney-ready documentation. 14-day turnaround. Protect your business from ADA lawsuits." />
+<meta property="og:title" content="Stormy Guard — ADA/WCAG Audits &amp; Remediation" />
+<meta property="og:description" content="Manual WCAG 2.2 AA audit. Code-level fixes. Attorney-ready documentation. 14-day turnaround." />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Geist:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          background: "hsl(var(--background))",
+          foreground: "hsl(var(--foreground))",
+          primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
+          secondary: { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
+          muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
+          accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
+          border: "hsl(var(--border))",
+        },
+        fontFamily: {
+          display: ["Fraunces", "'Instrument Serif'", "serif"],
+          body: ["Inter", "system-ui", "sans-serif"],
+        },
+        borderRadius: {
+          lg: "var(--radius)",
+          md: "calc(var(--radius) - 2px)",
+          sm: "calc(var(--radius) - 4px)",
+        },
+      },
+    },
+  };
+</script>
+<style>
+  :root {
+    --background: 222 18% 4%;
+    --foreground: 210 20% 96%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 222 16% 7%;
+    --secondary-foreground: 210 20% 88%;
+    --muted: 222 14% 9%;
+    --muted-foreground: 220 9% 70%;
+    --muted-foreground-soft: 220 9% 55%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    --border: 220 10% 16%;
+    --radius: 0.5rem;
+    --shadow-card: 0 30px 90px -20px rgba(0,0,0,0.6);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .font-display { font-family: "Fraunces", "Instrument Serif", serif; font-weight: 500; font-optical-sizing: auto; font-variation-settings: "opsz" 144; letter-spacing: 0.005em; }
+  .font-sans-display { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; }
+  .font-body { font-family: "Inter", system-ui, sans-serif; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  @keyframes stormPulseA {
+    0%,100% { opacity: 0.55; transform: translate3d(-5%, -10%, 0) scale(1); }
+    50%     { opacity: 0.85; transform: translate3d(3%, 4%, 0) scale(1.08); }
+  }
+  @keyframes scanSweep {
+    0%   { transform: translateY(-100%); }
+    100% { transform: translateY(220%); }
+  }
+  @keyframes pulseDot {
+    0%,100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.7); }
+    70%     { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+  }
+  .pulse-dot { animation: pulseDot 1.8s infinite; }
+
+  .storm-layer {
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  }
+  .storm-a {
+    background:
+      radial-gradient(ellipse 65% 55% at 20% 30%, hsla(217, 91%, 60%, 0.06), transparent 65%),
+      radial-gradient(ellipse 60% 50% at 80% 70%, hsla(217, 91%, 60%, 0.04), transparent 65%);
+    animation: stormPulseA 14s ease-in-out infinite;
+    filter: blur(20px);
+  }
+  .storm-grid {
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 80%);
+  }
+
+  .glass {
+    background: hsl(var(--muted));
+    box-shadow: var(--shadow-card);
+    border-radius: 1rem;
+  }
+
+  .scan-sweep::after {
+    content: "";
+    position: absolute; left: 0; right: 0; top: 0; height: 30%;
+    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.04), transparent);
+    animation: scanSweep 5s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  .surface { background: hsl(var(--muted)); }
+  .hairline { background: rgba(255,255,255,0.08); }
+  .eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #9CA3AF; font-family: Inter, system-ui, sans-serif; }
+
+  .noise::before {
+    content:""; position:absolute; inset:0; pointer-events:none; opacity:.035;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  .green-dot { width: 6px; height: 6px; border-radius: 999px; background: #22c55e; }
+
+  ::selection { background: hsla(217, 91%, 60%, 0.35); color: white; }
+</style>
+</head>
+<body class="bg-background text-foreground font-body">
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/framer-motion@11.0.8/dist/framer-motion.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js" crossorigin="anonymous"></script>
+
+<script>
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+
+var _ref = window.framerMotion || window.Motion || {},
+  motion = _ref.motion;
+var M = motion || { div: 'div', h1: 'h1', p: 'p', span: 'span', section: 'section', form: 'form' };
+
+function Icon(_ref2) {
+  var name = _ref2.name,
+    _ref2$className = _ref2.className,
+    className = _ref2$className === void 0 ? "" : _ref2$className,
+    _ref2$strokeWidth = _ref2.strokeWidth,
+    strokeWidth = _ref2$strokeWidth === void 0 ? 1.75 : _ref2$strokeWidth,
+    _ref2$size = _ref2.size,
+    size = _ref2$size === void 0 ? 16 : _ref2$size;
+  var ref = React.useRef(null);
+  React.useEffect(function () {
+    if (!ref.current) return;
+    var lib = window.lucide;
+    if (!lib || !lib.icons) return;
+    var key = name.replace(/(^|-)(.)/g, function (_, __, c) { return c.toUpperCase(); });
+    var node = lib.icons[key] || lib.icons[name];
+    if (!node) return;
+    var svg = lib.createElement(node);
+    svg.setAttribute("width", size);
+    svg.setAttribute("height", size);
+    svg.setAttribute("stroke-width", strokeWidth);
+    if (className) svg.setAttribute("class", className);
+    ref.current.innerHTML = "";
+    ref.current.appendChild(svg);
+  }, [name, className, strokeWidth, size]);
+  return React.createElement("span", { ref: ref, className: "inline-flex", "aria-hidden": "true" });
+}
+
+var fadeUp = function fadeUp() {
+  var delay = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+  var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 16;
+  var duration = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0.6;
+  return { initial: { opacity: 0, y: y }, animate: { opacity: 1, y: 0 }, transition: { duration: duration, delay: delay, ease: [0.22, 1, 0.36, 1] } };
+};
+
+function focusUrlInput(e) {
+  e.preventDefault();
+  var el = document.getElementById("sg-url");
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(function () { el.focus(); }, 450);
+}
+
+function Navbar() {
+  return React.createElement("header", { className: "fixed top-0 inset-x-0 z-50" },
+    React.createElement("div", { className: "mx-auto max-w-6xl px-5 md:px-8 mt-3" },
+      React.createElement("div", { className: "flex items-center justify-between rounded-full border border-border bg-background/60 backdrop-blur-md px-4 md:px-5 py-2.5" },
+        React.createElement("a", { href: "#top", className: "flex items-center text-foreground shrink-0" },
+          React.createElement("span", { className: "font-display text-[22px] tracking-tight whitespace-nowrap" }, "Stormy Guard")),
+        React.createElement("nav", { className: "hidden md:flex items-center gap-7 text-sm text-muted-foreground" },
+          React.createElement("a", { href: "#how", className: "hover:text-foreground transition-colors" }, "How it Works"),
+          React.createElement("a", { href: "#pricing", className: "hover:text-foreground transition-colors" }, "Pricing"),
+          React.createElement("a", { href: "mailto:contact@stormyguard.com", className: "hover:text-foreground transition-colors" }, "Contact")),
+        React.createElement("a", { href: "#sg-url", onClick: focusUrlInput, className: "rounded-full border border-white/15 bg-transparent text-foreground/90 hover:text-foreground hover:bg-white/[0.04] text-sm font-body font-medium px-4 py-2 transition" }, "Request Free Audit"))));
+}
+
+function StormBackground() {
+  return React.createElement("div", { "aria-hidden": "true", className: "absolute inset-0 overflow-hidden" },
+    React.createElement("div", { className: "storm-layer storm-grid" }),
+    React.createElement("div", { className: "storm-layer storm-a" }),
+    React.createElement("div", { className: "absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,hsl(var(--background))_85%)]" }));
+}
+
+function ScoreRing(_ref3) {
+  var _ref3$score = _ref3.score, score = _ref3$score === void 0 ? 67 : _ref3$score,
+    _ref3$size = _ref3.size, size = _ref3$size === void 0 ? 96 : _ref3$size,
+    _ref3$stroke = _ref3.stroke, stroke = _ref3$stroke === void 0 ? 8 : _ref3$stroke;
+  var r = (size - stroke) / 2;
+  var c = 2 * Math.PI * r;
+  var offset = c * (1 - score / 100);
+  return React.createElement("div", { className: "relative", style: { width: size, height: size } },
+    React.createElement("svg", { width: size, height: size, className: "-rotate-90" },
+      React.createElement("circle", { cx: size/2, cy: size/2, r: r, stroke: "hsl(var(--border))", strokeWidth: stroke, fill: "none" }),
+      React.createElement("circle", { cx: size/2, cy: size/2, r: r, stroke: "#D26A56", strokeWidth: stroke, fill: "none", strokeLinecap: "round", strokeDasharray: c, strokeDashoffset: offset })),
+    React.createElement("div", { className: "absolute inset-0 flex flex-col items-center justify-center" },
+      React.createElement("div", { className: "font-display text-foreground", style: { fontSize: 28, lineHeight: 1 } }, score),
+      React.createElement("div", { className: "text-[8px] text-muted-foreground tracking-wider mt-0.5" }, "/ 100")));
+}
+
+function postAuditRequest(_x) {
+  return _postAuditRequest.apply(this, arguments);
+}
+function _postAuditRequest() {
+  _postAuditRequest = _asyncToGenerator(function* (payload) {
+    console.log("[POST /api/audit-request]", payload);
+    window.dispatchEvent(new CustomEvent("sg:audit-request", { detail: payload }));
+    yield new Promise(function (r) { return setTimeout(r, 700); });
+    return { ok: true, queuePosition: null };
+  });
+  return _postAuditRequest.apply(this, arguments);
+}
+
+function parseHost(raw) {
+  var trimmed = (raw || "").trim();
+  if (!trimmed) return null;
+  try {
+    var u = new URL(trimmed.startsWith("http") ? trimmed : "https://".concat(trimmed));
+    var h = u.hostname.replace(/^www\./, "");
+    if (!h.includes(".") || h.length < 4) return null;
+    return h + (u.pathname && u.pathname !== "/" ? u.pathname.replace(/\/$/, "") : "");
+  } catch (_) { return null; }
+}
+
+function usePrefersReducedMotion() {
+  var _React$useState = React.useState(false),
+    _React$useState2 = _slicedToArray(_React$useState, 2),
+    reduced = _React$useState2[0], setReduced = _React$useState2[1];
+  React.useEffect(function () {
+    if (!window.matchMedia) return;
+    var m = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var upd = function upd() { return setReduced(m.matches); };
+    upd();
+    m.addEventListener ? m.addEventListener("change", upd) : m.addListener(upd);
+    return function () { m.removeEventListener ? m.removeEventListener("change", upd) : m.removeListener(upd); };
+  }, []);
+  return reduced;
+}
+
+function ScanForm() {
+  var reduced = usePrefersReducedMotion();
+  var _React$useState3 = React.useState("url"), _React$useState4 = _slicedToArray(_React$useState3, 2), step = _React$useState4[0], setStep = _React$useState4[1];
+  var _React$useState5 = React.useState(""), _React$useState6 = _slicedToArray(_React$useState5, 2), url = _React$useState6[0], setUrl = _React$useState6[1];
+  var _React$useState7 = React.useState(""), _React$useState8 = _slicedToArray(_React$useState7, 2), domain = _React$useState8[0], setDomain = _React$useState8[1];
+  var _React$useState9 = React.useState(""), _React$useState0 = _slicedToArray(_React$useState9, 2), email = _React$useState0[0], setEmail = _React$useState0[1];
+  var _React$useState1 = React.useState(""), _React$useState10 = _slicedToArray(_React$useState1, 2), notes = _React$useState10[0], setNotes = _React$useState10[1];
+  var _React$useState11 = React.useState(""), _React$useState12 = _slicedToArray(_React$useState11, 2), urlError = _React$useState12[0], setUrlError = _React$useState12[1];
+  var _React$useState13 = React.useState(""), _React$useState14 = _slicedToArray(_React$useState13, 2), emailError = _React$useState14[0], setEmailError = _React$useState14[1];
+  var _React$useState15 = React.useState(false), _React$useState16 = _slicedToArray(_React$useState15, 2), submitting = _React$useState16[0], setSubmitting = _React$useState16[1];
+  var _React$useState17 = React.useState(""), _React$useState18 = _slicedToArray(_React$useState17, 2), announce = _React$useState18[0], setAnnounce = _React$useState18[1];
+  var urlRef = React.useRef(null);
+  var emailRef = React.useRef(null);
+  var calendlyRef = React.useRef(null);
+
+  React.useEffect(function () {
+    if (step === "details" && emailRef.current) emailRef.current.focus();
+    if (step === "confirm" && calendlyRef.current) calendlyRef.current.focus();
+  }, [step]);
+
+  var submitUrl = function submitUrl(e) {
+    e.preventDefault();
+    var parsed = parseHost(url);
+    if (!parsed) { setUrlError("Please enter a valid URL (e.g., yoursite.com)"); return; }
+    setUrlError(""); setDomain(parsed); setStep("details");
+    setAnnounce("URL confirmed: ".concat(parsed, ". Please enter your email."));
+  };
+
+  var editUrl = function editUrl() {
+    setStep("url"); setAnnounce("Editing URL.");
+    setTimeout(function () { return urlRef.current && urlRef.current.focus(); }, 30);
+  };
+
+  var submitDetails = function () {
+    var _ref4 = _asyncToGenerator(function* (e) {
+      e.preventDefault();
+      var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+      if (!valid) { setEmailError("Please enter a valid email address"); return; }
+      setEmailError(""); setSubmitting(true);
+      try { yield postAuditRequest({ url: url, domain: domain, email: email, notes: notes }); }
+      finally {
+        setSubmitting(false); setStep("confirm");
+        setAnnounce("Audit requested for ".concat(domain, ". Confirmation sent to ").concat(email, "."));
+      }
+    });
+    return function submitDetails(_x2) { return _ref4.apply(this, arguments); };
+  }();
+
+  var reset = function reset() {
+    setStep("url"); setUrl(""); setDomain(""); setEmail(""); setNotes("");
+    setUrlError(""); setEmailError("");
+    setAnnounce("Form reset. Enter a new URL.");
+    setTimeout(function () { return urlRef.current && urlRef.current.focus(); }, 30);
+  };
+
+  var onDetailsKey = function onDetailsKey(e) { if (e.key === "Escape") { e.preventDefault(); editUrl(); } };
+
+  var mInit = reduced ? false : { opacity: 0, y: 8 };
+  var mAnim = { opacity: 1, y: 0 };
+  var mT = { duration: reduced ? 0 : 0.24, ease: [0.22, 1, 0.36, 1] };
+  var containerCls = "relative rounded-[28px] surface focus-within:ring-1 focus-within:ring-white/10 transition";
+
+  return React.createElement("div", null,
+    React.createElement("div", { className: "sr-only", "aria-live": "polite", role: "status" }, announce),
+
+    step === "url" && React.createElement(M.form, { key: "url", onSubmit: submitUrl, initial: mInit, animate: mAnim, transition: mT, noValidate: true, className: containerCls + " flex flex-col sm:flex-row items-stretch gap-2 p-1.5" },
+      React.createElement("label", { htmlFor: "sg-url", className: "sr-only" }, "Your website URL"),
+      React.createElement("div", { className: "flex items-center gap-2 flex-1 px-4" },
+        React.createElement(Icon, { name: "globe", size: 15, strokeWidth: 1.75, className: "text-muted-foreground" }),
+        React.createElement("input", { id: "sg-url", ref: urlRef, type: "text", inputMode: "url", autoComplete: "url", placeholder: "https://yoursite.com", value: url,
+          onChange: function onChange(e) { setUrl(e.target.value); if (urlError) setUrlError(""); },
+          "aria-invalid": !!urlError, "aria-describedby": urlError ? "sg-url-error" : undefined,
+          className: "flex-1 bg-transparent outline-none text-sm md:text-[15px] text-foreground placeholder:text-muted-foreground/70 py-2.5" })),
+      React.createElement("button", { type: "submit", className: "rounded-full bg-accent text-accent-foreground font-body text-sm font-medium px-5 py-3 hover:opacity-90 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background" }, "Request Free Audit")),
+
+    step === "details" && React.createElement(M.form, { key: "details", onSubmit: submitDetails, onKeyDown: onDetailsKey, initial: mInit, animate: mAnim, transition: mT, noValidate: true, className: containerCls + " p-4 text-left", "aria-label": "Audit request details" },
+      React.createElement("div", { className: "flex items-center justify-between gap-3 mb-3" },
+        React.createElement("div", { className: "inline-flex items-center gap-2 rounded-full bg-accent/10 border border-accent/25 px-3 py-1.5 text-xs text-foreground max-w-full" },
+          React.createElement(Icon, { name: "check", size: 12, strokeWidth: 2.5, className: "text-accent shrink-0" }),
+          React.createElement("span", { className: "font-medium font-mono whitespace-nowrap" }, domain)),
+        React.createElement("button", { type: "button", onClick: editUrl, className: "text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 decoration-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm px-1" }, "Edit")),
+      React.createElement("label", { htmlFor: "sg-email", className: "block text-sm text-foreground mb-1.5" }, "Where should we send your audit?"),
+      React.createElement("input", { id: "sg-email", ref: emailRef, type: "email", autoComplete: "email", placeholder: "you@company.com", value: email,
+        onChange: function onChange(e) { setEmail(e.target.value); if (emailError) setEmailError(""); },
+        "aria-invalid": !!emailError, "aria-describedby": emailError ? "sg-email-error" : undefined,
+        className: "w-full bg-background/40 border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/30 transition" }),
+      emailError && React.createElement("div", { id: "sg-email-error", role: "alert", "aria-live": "polite", className: "mt-1.5 text-xs text-amber-400" }, emailError),
+      React.createElement("label", { htmlFor: "sg-notes", className: "block text-sm text-foreground mt-3 mb-1.5" },
+        "Anything we should know about your site? ", React.createElement("span", { className: "text-muted-foreground font-normal" }, "(optional)")),
+      React.createElement("textarea", { id: "sg-notes", rows: 3, maxLength: 500, placeholder: "Tech stack, known issues, deadline pressure, etc.", value: notes,
+        onChange: function onChange(e) { return setNotes(e.target.value); },
+        className: "w-full bg-background/40 border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 outline-none focus:border-accent/60 focus:ring-2 focus:ring-accent/30 transition resize-none" }),
+      React.createElement("div", { className: "text-[10px] text-muted-foreground mt-1 text-right tabular-nums" }, notes.length, "/500"),
+      React.createElement("div", { className: "mt-3 flex items-center justify-between gap-3" },
+        React.createElement("div", { className: "text-xs text-muted-foreground hidden sm:block" },
+          React.createElement("kbd", { className: "font-mono text-[10px] px-1.5 py-0.5 rounded border border-border bg-background/40" }, "Esc"), " to edit URL"),
+        React.createElement("button", { type: "submit", disabled: submitting, className: "rounded-full bg-accent text-accent-foreground font-body text-sm font-medium px-5 py-2.5 hover:brightness-110 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-80" },
+          submitting ? "Sending…" : "Send my audit"))),
+
+    step === "confirm" && React.createElement(M.div, { key: "confirm", role: "status", initial: mInit, animate: mAnim, transition: mT,
+        className: containerCls + " p-6 text-left",
+        style: { borderColor: "rgba(34,197,94,0.32)", boxShadow: "0 10px 40px -10px rgba(34,197,94,0.30), 0 0 0 1px rgba(34,197,94,0.18) inset" } },
+      React.createElement("div", { className: "flex items-start gap-3" },
+        React.createElement("div", { className: "mt-0.5 h-7 w-7 shrink-0 rounded-full bg-[#22c55e]/15 border border-[#22c55e]/40 text-[#22c55e] flex items-center justify-center", "aria-hidden": "true" },
+          React.createElement(Icon, { name: "check", size: 14, strokeWidth: 2.5 })),
+        React.createElement("div", { className: "flex-1 min-w-0" },
+          React.createElement("h3", { className: "font-sans-display text-2xl text-foreground leading-tight" },
+            "Got it. We’re auditing ", React.createElement("span", { className: "font-mono text-[1.05rem] align-middle text-accent" }, domain), " now."),
+          React.createElement("p", { className: "text-sm text-muted-foreground mt-2 leading-relaxed" },
+            "Your full report lands in ", React.createElement("span", { className: "text-foreground" }, email), " within 24 hours. We’ll email you if we need anything from you in the meantime."),
+          React.createElement("div", { className: "mt-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4" },
+            React.createElement("a", { ref: calendlyRef, href: "https://calendly.com/stormyguard", target: "_blank", rel: "noopener noreferrer",
+              className: "inline-flex items-center justify-center rounded-full bg-accent text-accent-foreground font-body text-sm font-medium px-5 py-2.5 hover:brightness-110 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background" },
+              "Skip the line — book a 15-min call →"),
+            React.createElement("button", { type: "button", onClick: reset, className: "text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 decoration-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm self-start sm:self-auto px-1 py-0.5" },
+              "Submit another site"))))),
+
+    step === "url" && urlError && React.createElement("div", { id: "sg-url-error", role: "alert", "aria-live": "polite", className: "mt-2 pl-2 text-xs text-amber-400 text-left" }, urlError));
+}
+
+function StatPill(_ref5) {
+  var tone = _ref5.tone, label = _ref5.label;
+  var map = {
+    red:   { bg: "bg-[#ef4444]/10", border: "border-[#ef4444]/30", dot: "bg-[#ef4444]", text: "text-[#fca5a5]" },
+    amber: { bg: "bg-[#f59e0b]/10", border: "border-[#f59e0b]/30", dot: "bg-[#f59e0b]", text: "text-[#fcd34d]" },
+    green: { bg: "bg-[#22c55e]/10", border: "border-[#22c55e]/30", dot: "bg-[#22c55e]", text: "text-[#86efac]" },
+  };
+  var t = map[tone];
+  return React.createElement("div", { className: "flex items-center gap-2 ".concat(t.bg, " border ").concat(t.border, " ").concat(t.text, " rounded-full px-2.5 py-1 text-[10px]") },
+    React.createElement("span", { className: "w-1.5 h-1.5 rounded-full ".concat(t.dot) }),
+    React.createElement("span", { className: "font-medium" }, label));
+}
+
+function MockAuditReport() {
+  var violations = [
+    { color: "#D26A56", title: "Missing alt text on images", count: "14 elements", wcag: "WCAG 1.1.1" },
+    { color: "#D26A56", title: "Links have no discernible name", count: "6 elements", wcag: "WCAG 2.4.4" },
+    { color: "#C99A66", title: "Low color contrast ratio", count: "8 elements", wcag: "WCAG 1.4.3" },
+    { color: "#C99A66", title: "Missing form field labels", count: "3 elements", wcag: "WCAG 1.3.1" },
+  ];
+  return React.createElement(M.div, _extends({}, fadeUp(0.5, 30, 0.8), { className: "mt-12 w-full max-w-3xl mx-auto" }),
+    React.createElement("div", { className: "text-xs tracking-[0.22em] text-muted-foreground font-body uppercase text-center mb-3" }, "Sample audit report"),
+    React.createElement("div", { className: "glass relative overflow-hidden p-6 select-none pointer-events-none scan-sweep" },
+      React.createElement("div", { className: "flex items-center justify-between text-[11px] font-body" },
+        React.createElement("div", { className: "flex items-center gap-2 text-muted-foreground" },
+          React.createElement(Icon, { name: "file-text", size: 13 }),
+          React.createElement("span", { className: "font-mono" }, "audit-sample.pdf")),
+        React.createElement("div", { className: "flex items-center gap-2" },
+          React.createElement("span", { className: "green-dot pulse-dot" }),
+          React.createElement("span", { className: "text-[#22c55e]" }, "Audit Complete \xB7 Anonymized client"))),
+      React.createElement("div", { className: "flex items-center justify-between mt-4 gap-6" },
+        React.createElement("div", { className: "flex items-center gap-4" },
+          React.createElement(ScoreRing, { score: 67 }),
+          React.createElement("div", { className: "text-[10px] text-muted-foreground leading-tight max-w-[120px]" },
+            React.createElement("div", { className: "text-foreground text-[11px] font-medium mb-0.5" }, "Accessibility Score"),
+            "Below WCAG 2.2 AA conformance — 22 actionable issues found.")),
+        React.createElement("div", { className: "flex flex-col gap-1.5 min-w-[150px]" },
+          React.createElement(StatPill, { tone: "red", label: "14 Critical Issues" }),
+          React.createElement(StatPill, { tone: "amber", label: "8 Warnings" }),
+          React.createElement(StatPill, { tone: "green", label: "3 Passed" }))),
+      React.createElement("div", { className: "mt-4 flex flex-col gap-2" },
+        violations.map(function (v, i) {
+          return React.createElement("div", { key: i, className: "rounded-lg bg-secondary/50 border border-border/60 px-3 py-2 flex items-center justify-between text-[11px]" },
+            React.createElement("div", { className: "flex items-center gap-2 min-w-0" },
+              React.createElement("span", { className: "shrink-0 w-1.5 h-1.5 rounded-full", style: { background: v.color }, "aria-hidden": "true" }),
+              React.createElement("span", { className: "text-foreground truncate" }, v.title)),
+            React.createElement("div", { className: "flex items-center gap-3 shrink-0" },
+              React.createElement("span", { className: "text-muted-foreground" }, v.count),
+              React.createElement("span", { className: "font-mono text-muted-foreground/80 text-[10px] px-1.5 py-0.5 rounded border border-border/60" }, v.wcag)));
+        })),
+      React.createElement("div", { className: "mt-4 flex justify-between items-center" },
+        React.createElement("span", { className: "text-[10px] text-muted-foreground" }, "22 critical issues shown \xB7 47 total in full report"),
+        React.createElement("a", { href: "#", className: "rounded-full border border-white/15 bg-transparent text-foreground/85 hover:text-foreground hover:bg-white/[0.04] text-[10px] px-3 py-1 transition pointer-events-auto" }, "See sample report →"))));
+}
+
+function Hero() {
+  return React.createElement("section", { id: "top", className: "relative min-h-screen flex items-center pt-32 pb-36 noise overflow-hidden" },
+    React.createElement(StormBackground, null),
+    React.createElement("div", { className: "relative z-10 mx-auto max-w-6xl px-5 md:px-8 w-full flex flex-col items-center" },
+      React.createElement(M.div, _extends({}, fadeUp(0, 10, 0.5), { className: "flex items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-[#9CA3AF] font-body" }),
+        React.createElement("span", { className: "h-px w-12 hairline", "aria-hidden": "true" }),
+        React.createElement("span", null, "3,948 ADA lawsuits filed in 2025"),
+        React.createElement("span", { className: "h-px w-12 hairline", "aria-hidden": "true" })),
+      React.createElement(M.h1, _extends({}, fadeUp(0.1, 16, 0.6), { className: "font-display text-foreground text-center max-w-[20ch] mt-11", style: { fontSize: "clamp(3rem, 6.5vw + 1rem, 5.5rem)", lineHeight: 1.0, letterSpacing: "-0.02em" } }),
+        "Your site is one ", React.createElement("em", { className: "font-display italic text-accent", style: { fontStyle: "italic" } }, "audit"), " away from compliance"),
+      React.createElement(M.p, _extends({}, fadeUp(0.2, 16, 0.6), { className: "mt-8 text-center text-[17px] md:text-lg text-muted-foreground max-w-[560px] leading-relaxed font-body" }),
+        "Manual WCAG 2.2 AA audit. Code-level fixes. Attorney-ready documentation. 14-day turnaround."),
+      React.createElement(M.div, _extends({}, fadeUp(0.3, 16, 0.6), { className: "mt-14 w-full max-w-xl" }),
+        React.createElement(ScanForm, null),
+        React.createElement("div", { className: "mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground text-center" },
+          React.createElement(Icon, { name: "check", size: 12, strokeWidth: 2.25 }),
+          React.createElement("span", null, React.createElement("span", { className: "text-foreground font-medium" }, "Manual"), " audit by accessibility specialists \xB7 Delivered within 24 hours \xB7 No credit card required")),
+        React.createElement("div", { className: "mt-5 flex items-center justify-center" },
+          React.createElement("a", { href: "#pricing", className: "inline-flex items-center gap-1.5 rounded-full border border-border bg-transparent text-foreground/90 hover:text-foreground hover:bg-secondary hover:border-accent/40 transition text-sm font-medium px-4 py-2" },
+            "See pricing", React.createElement(Icon, { name: "chevron-down", size: 14, strokeWidth: 2 })))),
+      React.createElement(MockAuditReport, null)));
+}
+
+function StatStrip() {
+  var stats = [
+    { n: "3,948", l: "ADA lawsuits filed in 2025" },
+    { n: "96%", l: "of homepages have WCAG failures" },
+    { n: "$10K–$75K", l: "typical demand-letter settlement" },
+  ];
+  return React.createElement("section", { className: "bg-background py-20" },
+    React.createElement("div", { className: "mx-auto max-w-5xl px-5 md:px-8" },
+      React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-3 sm:divide-x divide-y sm:divide-y-0 divide-white/[0.08]" },
+        stats.map(function (s, i) {
+          return React.createElement("div", { key: i, className: "flex flex-col items-center text-center px-4 py-5 sm:py-2" },
+            React.createElement("div", { className: "font-sans-display text-[28px] leading-none", style: { color: "#F5F5F7", fontWeight: 600 } }, s.n),
+            React.createElement("div", { className: "text-[13px] mt-2.5", style: { color: "#9CA3AF" } }, s.l));
+        })),
+      React.createElement("div", { className: "mt-7 text-center text-[12px] italic", style: { color: "#6B7280" } },
+        "Sources: UsableNet 2025 Annual Digital Accessibility Lawsuit Report; WebAIM Million 2024.")));
+}
+
+function SectionLabel(_ref6) {
+  var children = _ref6.children;
+  return React.createElement("div", { className: "text-[11px] tracking-[0.15em] font-body uppercase", style: { color: "#9CA3AF" } }, children);
+}
+
+function HowItWorks() {
+  var cards = [
+    { icon: "search", step: "01", title: "Submit Your URL", body: "Enter your website URL and we run a full manual audit using WCAG 2.2 AA standards plus real screen reader testing." },
+    { icon: "shield", step: "02", title: "We Audit Your Site", body: "Our audit covers all 55 WCAG 2.2 AA success criteria — contrast, keyboard navigation, screen reader labels, focus management, and more." },
+    { icon: "file-check", step: "03", title: "Get Your Report + Fixes", body: "You receive a detailed violation report with code-level fixes and an attorney-ready compliance document. All within 2 weeks." },
+  ];
+  return React.createElement("section", { id: "how", className: "py-32 text-center" },
+    React.createElement("div", { className: "mx-auto max-w-6xl px-5 md:px-8" },
+      React.createElement(SectionLabel, null, "How it works"),
+      React.createElement("h2", { className: "font-sans-display text-4xl md:text-5xl text-foreground mt-2" }, "Three steps to protection"),
+      React.createElement("div", { className: "mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-left" },
+        cards.map(function (c, i) {
+          return React.createElement("div", { key: i, className: "rounded-2xl surface p-9 relative overflow-hidden" },
+            React.createElement("div", { className: "relative" },
+              React.createElement("div", { className: "h-9 w-9 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-foreground/80" },
+                React.createElement(Icon, { name: c.icon, size: 18, strokeWidth: 1.6 })),
+              React.createElement("div", { className: "text-[11px] mt-4 tracking-[0.15em] font-mono", style: { color: "#6B7280" } }, c.step),
+              React.createElement("div", { className: "font-sans-display text-2xl text-foreground mt-1" }, c.title),
+              React.createElement("div", { className: "text-[15px] text-muted-foreground font-body mt-2 leading-relaxed" }, c.body)));
+        }))));
+}
+
+function PricingCard(_ref7) {
+  var tier = _ref7.tier;
+  var isPop = tier.popular;
+  return React.createElement("div", { className: "relative rounded-2xl surface flex flex-col ".concat(isPop ? "p-10" : "p-8") },
+    isPop && React.createElement("div", { className: "absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full uppercase", style: { background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#fff", fontWeight: 600, letterSpacing: "0.1em", fontSize: "11px", padding: "6px 12px" } }, "Most Popular"),
+    React.createElement("div", { className: "font-sans-display text-xl text-foreground" }, tier.title),
+    React.createElement("div", { className: "mt-3 flex items-baseline gap-1.5" },
+      React.createElement("div", { className: "font-sans-display text-foreground", style: { fontSize: isPop ? "3rem" : "2.5rem", lineHeight: 1, fontWeight: 600 } }, tier.price),
+      React.createElement("div", { className: "text-sm text-muted-foreground" }, tier.cadence)),
+    React.createElement("div", { className: "hairline h-px mt-5 mb-5" }),
+    React.createElement("div", { className: "flex flex-col gap-2.5 text-[15px] font-body" },
+      tier.features.map(function (f, i) {
+        return React.createElement("div", { key: i, className: "flex items-start gap-2.5 text-secondary-foreground" },
+          React.createElement("span", { className: "mt-0.5", style: { color: "#6B7280" } }, "✓"),
+          React.createElement("span", null, f));
+      })),
+    React.createElement("a", { href: "mailto:contact@stormyguard.com", className: "mt-7 rounded-full w-full text-center py-3 text-sm font-medium transition ".concat(isPop ? "bg-accent text-accent-foreground hover:opacity-90" : "border border-white/15 bg-transparent text-foreground hover:bg-white/[0.04]") }, "Get Started"));
+}
+
+function Pricing() {
+  var tiers = [
+    { title: "Audit Only", price: "$497", cadence: "/one-time", features: ["Full WCAG 2.2 AA audit", "Manual + automated testing", "Screen reader testing", "Detailed violation report", "Attorney-ready document", "2-week turnaround"] },
+    { title: "Audit + Remediation", price: "$1,997", cadence: "/one-time", popular: true, features: ["Everything in Audit Only", "Full code-level remediation", "Shopify / Webflow / WordPress support", "Re-test after fixes", "Conformance attestation", "Priority turnaround"] },
+    { title: "Monthly Monitoring", price: "$197", cadence: "/mo", features: ["Monthly automated scans", "Regression detection", "New violation alerts", "Quarterly manual review", "Ongoing compliance report", "Cancel anytime"] },
+  ];
+  return React.createElement("section", { id: "pricing", className: "py-32" },
+    React.createElement("div", { className: "mx-auto max-w-6xl px-5 md:px-8 text-center" },
+      React.createElement(SectionLabel, null, "Pricing"),
+      React.createElement("h2", { className: "font-sans-display text-4xl md:text-5xl text-foreground mt-2" }, "Flat fees. No surprises."),
+      React.createElement("p", { className: "mt-3 text-sm text-muted-foreground max-w-md mx-auto" }, "Pick the level of protection that fits. Every plan ships with attorney-ready documentation."),
+      React.createElement("div", { className: "mt-14 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto text-left" },
+        tiers.map(function (t, i) { return React.createElement(PricingCard, { key: i, tier: t }); }))));
+}
+
+function WhyUs() {
+  var rows = [
+    { icon: "code", title: "Code-level remediation", body: "We fix the actual HTML, ARIA, and CSS — not a JavaScript overlay that courts reject and plaintiff attorneys specifically target." },
+    { icon: "scale", title: "Attorney-ready documentation", body: "Every audit includes a compliance report formatted for legal review. Show your attorney exactly what was fixed and when." },
+    { icon: "refresh-cw", title: "Protection against repeat targeting", body: "46% of sued companies get hit again because settling doesn’t fix the code. We fix the code." },
+    { icon: "globe", title: "WCAG 2.2 AA standard", body: "The benchmark that courts and the DOJ point to for ADA web compliance. We test all 55 success criteria manually, not just what automated tools catch." },
+  ];
+  return React.createElement("section", { className: "py-32" },
+    React.createElement("div", { className: "mx-auto max-w-6xl px-5 md:px-8" },
+      React.createElement(SectionLabel, null, "Why us"),
+      React.createElement("h2", { className: "font-sans-display text-4xl md:text-5xl text-foreground mt-2 max-w-xl", style: { lineHeight: 1.1 } },
+        "Real fixes. Not a ", React.createElement("em", { className: "italic" }, "widget"), "."),
+      React.createElement("div", { className: "mt-12 grid grid-cols-1 md:grid-cols-2 gap-12 items-center" },
+        React.createElement("div", { className: "flex flex-col gap-7" },
+          rows.map(function (r, i) {
+            return React.createElement("div", { key: i, className: "flex gap-4 items-start" },
+              React.createElement("div", { className: "mt-0.5 h-8 w-8 shrink-0 rounded-md bg-white/[0.04] border border-white/10 text-foreground/80 flex items-center justify-center" },
+                React.createElement(Icon, { name: r.icon, size: 16, strokeWidth: 1.6 })),
+              React.createElement("div", null,
+                React.createElement("div", { className: "text-[16px] font-medium text-foreground font-body" }, r.title),
+                React.createElement("div", { className: "text-[15px] text-muted-foreground font-body leading-relaxed mt-1" }, r.body)));
+          })),
+        React.createElement("div", { className: "rounded-2xl surface p-9 relative overflow-hidden" },
+          React.createElement("div", { className: "relative" },
+            React.createElement("div", { className: "flex items-center gap-2 text-[10px] font-mono tracking-[0.2em] uppercase", style: { color: "#9CA3AF" } },
+              React.createElement(Icon, { name: "alert-triangle", size: 12, strokeWidth: 1.75 }), "Industry alert"),
+            React.createElement("div", { className: "text-xl font-sans-display text-foreground mt-3" }, "The overlay trap"),
+            React.createElement("p", { className: "text-[15px] text-muted-foreground font-body leading-relaxed mt-3" },
+              "In 2025, 983 lawsuits targeted websites that already had an accessibility widget installed. In 2023, the FTC settled with overlay vendor accessiBe over deceptive marketing claims about its automated tool. Overlays are a documented litigation magnet — not a defense — because they don’t fix the underlying code."),
+            React.createElement("div", { className: "mt-6 pt-6 border-t border-white/[0.08]" },
+              React.createElement("div", { className: "font-sans-display text-3xl text-foreground leading-none", style: { fontWeight: 600 } }, "983 lawsuits"),
+              React.createElement("div", { className: "text-[12px] mt-1.5", style: { color: "#9CA3AF" } }, "filed against sites with overlays installed in 2025")))))));
+}
+
+function FinalCTA() {
+  return React.createElement("section", { className: "py-36 border-t border-white/[0.06] text-center relative overflow-hidden" },
+    React.createElement("div", { className: "relative mx-auto max-w-3xl px-5 md:px-8" },
+      React.createElement("h2", { className: "font-sans-display text-foreground max-w-2xl mx-auto", style: { fontSize: "clamp(2.75rem, 5.5vw, 4rem)", lineHeight: 1.05 } },
+        "Compliant in ", React.createElement("em", { className: "italic text-accent" }, "14 days"), "."),
+      React.createElement("p", { className: "mt-5 text-[17px] text-muted-foreground font-body max-w-xl mx-auto leading-relaxed" },
+        "Manual WCAG 2.2 AA audit. Code-level fixes. Attorney-ready documentation. Flat fee, no surprises."),
+      React.createElement("div", { className: "mt-10 flex flex-col sm:flex-row items-center justify-center gap-3" },
+        React.createElement("a", { href: "#sg-url", onClick: focusUrlInput, className: "inline-flex items-center justify-center rounded-full px-7 py-3.5 bg-accent text-accent-foreground font-body text-sm font-medium hover:opacity-90 transition" }, "Request Free Audit"),
+        React.createElement("a", { href: "https://calendly.com/stormyguard", target: "_blank", rel: "noopener noreferrer", className: "inline-flex items-center justify-center rounded-full px-7 py-3.5 border border-white/15 bg-transparent text-foreground text-sm font-medium hover:bg-white/[0.04] transition" }, "Book a 15-min call →")),
+      React.createElement("div", { className: "mt-5 text-xs text-muted-foreground" },
+        React.createElement("span", { className: "text-foreground font-medium" }, "Manual"), " audit \xB7 Delivered within 24 hours \xB7 No credit card required")));
+}
+
+function Footer() {
+  return React.createElement("footer", { className: "bg-background border-t border-white/[0.06] py-10 px-6" },
+    React.createElement("div", { className: "mx-auto max-w-6xl flex justify-between items-center flex-wrap gap-4" },
+      React.createElement("div", { className: "flex flex-col" },
+        React.createElement("div", { className: "text-[15px] font-display text-foreground" }, "Stormy Guard"),
+        React.createElement("div", { className: "text-xs text-muted-foreground mt-1" }, "\xA9 2026")),
+      React.createElement("div", { className: "text-xs text-muted-foreground font-body text-right" },
+        "ADA/WCAG Accessibility Audits \xB7 ", React.createElement("a", { className: "hover:text-foreground", href: "mailto:contact@stormyguard.com" }, "contact@stormyguard.com"))));
+}
+
+function App() {
+  return React.createElement("div", { className: "min-h-screen" },
+    React.createElement(Navbar, null),
+    React.createElement(Hero, null),
+    React.createElement(StatStrip, null),
+    React.createElement(HowItWorks, null),
+    React.createElement(Pricing, null),
+    React.createElement(WhyUs, null),
+    React.createElement(FinalCTA, null),
+    React.createElement(Footer, null));
+}
+
+var root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(React.createElement(App, null));
+</script>
+</body>
+</html>
